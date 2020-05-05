@@ -1,5 +1,6 @@
 import React from 'react';
 import logo from './logo.svg';
+import { Switch, Route } from 'react-router-dom'
 import TodoApp from './todoApp';
 import Home from './home';
 import './App.css';
@@ -7,7 +8,13 @@ import './App.css';
 class App extends React.Component{
   render(){
     return(
-      <Home />
+      <div >
+      {/* <Home /> */}
+      <Switch>
+        <Route exact path="/" component={Home}/>
+        <Route exact path="/app" exact component={TodoApp}/>
+      </Switch>
+      </div>
     )
   }
 }

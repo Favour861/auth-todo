@@ -3,13 +3,16 @@ import logo from './logo.svg';
 import { Formik, Field, Form, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import TextField from '@material-ui/core/TextField';
+import Button from '@material-ui/core/Button';
 import { makeStyles } from '@material-ui/core/styles';
+import SignupDialog from './SignupDialog'
 
 const style = {
     
 }
 
 const styleError = {...style, borderBottom: "1px solid tomato", outline: "none"}
+
 const useStyles = makeStyles((theme) => ({
     root: {
       '& > *': {
@@ -19,22 +22,41 @@ const useStyles = makeStyles((theme) => ({
     },
   }));
 
-const submitForm = async(values) => {
-    const requestOptions = {
-        method: 'POST',
-        body: JSON.stringify(values)
-    }
-    const response = await fetch('http://localhost:5000/signup', requestOptions);
-    const json = await response.json();
-    console.log(json);
-}
+
 
 function SignUp(){
-      const classes = useStyles();
+    const classes = useStyles();
 
+    const [open, setOpen] = React.useState(false);
+    const [status, setStatus] = React.useState({});
 
+    const submitForm = async(values) => {
+        // console.log(values);
+        const requestOptions = {
+            method: 'POST',
+            headers: new Headers({
+                'Content-Type': 'application/json'
+            }),
+            body: JSON.stringify(values)
+        }
+        const response = await fetch('http://localhost:5000/user/signup', requestOptions);
+        const json = await response.json();
+        // setOpen(false)
+        if(json.success){
+            setOpen(true)
+            setStatus({status: true, message: json.message})
+        }else{
+            setStatus({status: false, message: json.message})
+            setOpen(true)
+        }
+        // console.log(json);
+    }
 
+    const handleClose = () => {
+        setOpen(false);
+    }
     return(
+    <div>
         <Formik
             initialValues={{ firstName: '', lastName: '', email: '', phone: '', username: '', password: '' }}
             validationSchema={Yup.object({
@@ -134,10 +156,15 @@ function SignUp(){
                 </Field>
                 <ErrorMessage name="password" />
                 <p align="center" className="mt-2">
-                    <button className="btn btn-danger" type="submit" style={{borderRadius: 0}}>Sign Up</button>
+                    <Button variant="contained" color="secondary" type="submit">Sign Up</Button>
+
+                    {/* <button className="btn btn-danger" type="submit" style={{borderRadius: 0}}>Sign Up</button> */}
                 </p>
             </Form>
         </Formik>
+
+        <SignupDialog reqStatus={status} handleClose={handleClose} control={open} />
+    </div>
     )
 }
 

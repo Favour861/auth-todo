@@ -11,6 +11,7 @@ import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
 import Box from '@material-ui/core/Box';
+import { withRouter } from 'react-router'
 
 import './App.css';
 
@@ -76,10 +77,11 @@ function Home(){
                         <AppBar position="static" color="default">
                           <Tabs
                             value={value}
+                            // initialSelectedIndex={1}
                             onChange={handleChange}
                             indicatorColor="secondary"
                             textColor="secondary"
-                            variant="fullWidth"
+                            // variant="fullWidth"
                             aria-label="full width tabs example"
                             centered
                           >
@@ -107,4 +109,4 @@ function Home(){
     )
 }
 
-export default Home;
+export default withRouter(Home);
