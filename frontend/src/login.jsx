@@ -33,29 +33,36 @@ function Login(){
 
 
 
-    const submitForm = async(values) => {
+    const submitForm = (values) => {
         console.log(values);
         const requestOptions = {
             method: 'POST',
+            credentials: 'include',
             headers: new Headers({
                 'Content-Type': 'application/json'
             }),
-            body: JSON.stringify(values)
+            body: JSON.stringify(values),
         }
-        const response = await fetch('http://localhost:5000/user/login', requestOptions);
-        const json = await response.json();
+        fetch('http://localhost:5000/user/authenticate', requestOptions).then(response => {
+            if(response.status == 200){
+                let newStatus = {control: true, severity: 'success', message: 'Logged In Successfully'};
+                setStatus({...newStatus});
+                setTimeout(()=>{
+                    history.push('/app');
+                },1000)
+            }else{
+                let newStatus;
+                if(response.status == 500){
+                    newStatus = {control: true, severity: 'error', message: 'Server Error'};
+                }else if(response.status == 401){
+                    newStatus = {control: true, severity: 'error', message: 'Invalid Login Credentials'};
+                }
+                setStatus({...newStatus});
+                // console.log(status);
+            }
+        })
+        // const json = await response;
 
-        if(json.success){
-            let newStatus = {control: true, severity: 'success', message: 'Logged In Successfully'};
-            setStatus({...newStatus});
-            setTimeout(()=>{
-                history.push('/app');
-            },1000)
-        }else{
-            let newStatus = {control: true, severity: 'error', message: 'Invalid Login Credentials'};
-            setStatus({...newStatus});
-            // console.log(status);
-        }
     }
     const handleClose = () => {
         setStatus({...status, control: false})

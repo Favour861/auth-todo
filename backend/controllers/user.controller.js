@@ -1,5 +1,7 @@
 const User = require('../models/user.model');
+const jwt = require('jsonwebtoken');
 
+const secret = process.env.HASH_SECRET;
 exports.users = (req, res) => {
     User.find(req.params.id, (err, users) => {
         if(err) return next(err);
@@ -7,6 +9,7 @@ exports.users = (req, res) => {
     })
 }
 
+//signup
 exports.signup = (req, res) => {
     // console.log(req);
     console.log(req.body);
@@ -40,6 +43,7 @@ exports.signup = (req, res) => {
     })
 }
 
+
 exports.userDetail = (req, res) => {
     User.findById(req.params.id, (err, user) => {
         if(err) return next(err);
@@ -61,6 +65,7 @@ exports.updateUser = (req, res) => {
     }
 }
 
+
 exports.deleteUser = (req,res) => {
     User.findByIdAndRemove(req.params.id, (err) => {
         if(err) return next(err);
@@ -79,16 +84,37 @@ exports.deleteAll = (req,res) => {
     })
 }
 
-exports.login = (req, res) => {
+//authenticate
+exports.authenticate = (req, res) => {
     let username = req.body.username;
     let password = req.body.password;
     let response;
-    User.find({$or: [{email: username, password: password}, {username: username, password: password}]}, (err, result) => {
-        if(result.length == 0){
-            response = {success: false, message: "Invalid Credentials"}
+    //check if valid
+    // User.find({$or: [{email: username, password: password}, {username: username, password: password}]}, (err, user) => {
+    User.findOne({$or: [{email: username}, {username: username}]}, (err, user) => {
+        if(err){
+            res.status(500).json({success: false, message: "Favour says: Server Error, please try again"})
+        }else if(!user){
+            res.status(401).json({success: false, message: "Invalid Credentials"})
         }else{
-            response = {success: true, message: "Logged In"}
+            //check password
+            user.isCorrectPassword(password, (err, same) => {
+                if(err){
+                    res.status(500).json({success: false, message: "Favour says: Server Error, please try again"})
+                }else if(!same){
+                    res.status(401).json({success: false, message: "Invalid Credentials"})
+                }else{
+                    //issue token
+                    const payload = { username };
+                    const token = jwt.sign(payload, secret, { expiresIn: '1h'});
+                    // console.log(token, "TOKEEEEEEN")
+                    // res.cookie('token', token, { httpOnly: true }).status(200).json({success: true, message: "Logged In"})
+                    res.cookie('token', token, { httpOnly: true }).sendStatus(200);
+                    // console.log(res)
+                }
+            })
         }
-        res.send(response)
+
+        // res.send(response)
     })
 }
