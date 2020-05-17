@@ -28,11 +28,11 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Origin", "http://localhost:3000");
     res.header("Access-Control-Allow-Credentials", true);
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, authorization");
     next();
 });
 
-app.get('/checkToken', withAuth, (req, res) => {
+app.post('/checkToken', withAuth, (req, res) => {
     res.sendStatus(200);
 })
 

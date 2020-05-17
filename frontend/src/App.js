@@ -5,7 +5,7 @@ import TodoApp from './todoApp';
 import Home from './home';
 import './App.css';
 import withAuth from './withAuth';
-import withoutAuth from './withAuth';
+import withoutAuth from './withoutAuth';
 
 
 class App extends React.Component{
@@ -14,6 +14,8 @@ class App extends React.Component{
       <div >
       {/* <Home /> */}
       <Switch>
+        {/* <Route exact path="/" component={Home}/> */}
+        {/* <Route exact path="/app" exact component={TodoApp}/> */}
         <Route exact path="/" component={withoutAuth(Home)}/>
         <Route exact path="/app" exact component={withAuth(TodoApp)}/>
       </Switch>

@@ -12,27 +12,34 @@ export default function withAuth(ComponentToProtect) {
     }
 
     componentDidMount() {
-      fetch('http://localhost:5000/checkToken', {
-        method: 'GET',
-        credentials: 'include',
-        headers: new Headers({
-            'Content-Type': 'application/json'
-        }),
-        // body: JSON.stringify(values)
-        })
-        .then(res => {
-          if (res.status === 200) {
-            this.setState({ loading: false });
-          } 
-          else {
-            const error = new Error(res.error);
-            throw error;
-          }
-        })
-        .catch(err => {
-          console.error(err);
-          this.setState({ loading: false, redirect: true });
-        });
+      let token = localStorage.getItem('token')
+      if(!token){
+        this.setState({ loading: false, redirect: true });
+      }else{
+        let bearer = 'Bearer ' + token;
+        fetch('http://localhost:5000/checkToken', {
+          method: 'POST',
+          credentials: 'include',
+          headers: new Headers({
+              'authorization': bearer,
+              'Content-Type': 'application/json'
+          }),
+          // body: JSON.stringify(values)
+          })
+          .then(res => {
+            if (res.status === 200) {
+              this.setState({ loading: false });
+            } 
+            else {
+              const error = new Error(res.error);
+              throw error;
+            }
+          })
+          .catch(err => {
+            console.error(err);
+            this.setState({ loading: false, redirect: true });
+          });
+      }
     }
     render() {
       const { loading, redirect } = this.state;

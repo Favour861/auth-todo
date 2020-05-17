@@ -109,7 +109,8 @@ exports.authenticate = (req, res) => {
                     const token = jwt.sign(payload, secret, { expiresIn: '1h'});
                     // console.log(token, "TOKEEEEEEN")
                     // res.cookie('token', token, { httpOnly: true }).status(200).json({success: true, message: "Logged In"})
-                    res.cookie('token', token, { httpOnly: true }).sendStatus(200);
+                    // res.cookie('token', token, { httpOnly: true }).sendStatus(200);
+                    res.status(200).json({token, message: "Logged In"})
                     // console.log(res)
                 }
             })

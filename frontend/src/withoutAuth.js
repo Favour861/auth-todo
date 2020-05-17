@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Redirect } from 'react-router-dom';
 
-export default function withoutAuth(ComponentToProtect) {
+export default function withAuth(ComponentToProtect) {
   return class extends Component {
     constructor() {
       super();
@@ -12,38 +12,45 @@ export default function withoutAuth(ComponentToProtect) {
     }
 
     componentDidMount() {
-      fetch('http://localhost:5000/checkToken', {
-        method: 'GET',
-        credentials: 'include',
-        headers: new Headers({
-            'Content-Type': 'application/json'
-        }),
-        // body: JSON.stringify(values)
-        })
-        .then(res => {
-          if (res.status === 200) {
+      let token = localStorage.getItem('token')
+      if(!token){
+        this.setState({ loading: false });
+      }else{
+        let bearer = 'Bearer ' + token;
+        fetch('http://localhost:5000/checkToken', {
+          method: 'POST',
+          credentials: 'include',
+          headers: new Headers({
+              'authorization': bearer,
+              'Content-Type': 'application/json'
+          }),
+          // body: JSON.stringify(values)
+          })
+          .then(res => {
+            if (res.status === 200) {
+              // this.setState({ loading: false });
               this.setState({ loading: false, redirect: true });
             } 
             else {
-                const error = new Error(res.error);
-                throw error;
-                this.setState({ loading: false, redirect: false});
+              const error = new Error(res.error);
+              throw error;
             }
-        })
-        .catch(err => {
+          })
+          .catch(err => {
             console.error(err);
-            this.setState({ loading: false});
-        });
+            this.setState({ loading: false });
+          });
+      }
     }
     render() {
-        const { loading, redirect } = this.state;
-        if (loading) {
-            return null;
-        }
-        if (redirect) {
-            return <Redirect to="/app" />;
-        }
-        return <ComponentToProtect {...this.props} />;
+      const { loading, redirect } = this.state;
+      if (loading) {
+        return null;
+      }
+      if (redirect) {
+        return <Redirect to="/app" />;
+      }
+      return <ComponentToProtect {...this.props} />;
     }
   }
 }

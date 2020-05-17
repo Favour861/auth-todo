@@ -33,8 +33,8 @@ function Login(){
 
 
 
-    const submitForm = (values) => {
-        console.log(values);
+    const submitForm = async (values) => {
+        // console.log(values);
         const requestOptions = {
             method: 'POST',
             credentials: 'include',
@@ -43,24 +43,45 @@ function Login(){
             }),
             body: JSON.stringify(values),
         }
-        fetch('http://localhost:5000/user/authenticate', requestOptions).then(response => {
-            if(response.status == 200){
-                let newStatus = {control: true, severity: 'success', message: 'Logged In Successfully'};
-                setStatus({...newStatus});
-                setTimeout(()=>{
-                    history.push('/app');
-                },1000)
-            }else{
-                let newStatus;
-                if(response.status == 500){
-                    newStatus = {control: true, severity: 'error', message: 'Server Error'};
-                }else if(response.status == 401){
-                    newStatus = {control: true, severity: 'error', message: 'Invalid Login Credentials'};
-                }
-                setStatus({...newStatus});
-                // console.log(status);
+        let response = await fetch('http://localhost:5000/user/authenticate', requestOptions);
+        if(response.ok){
+            let newStatus = {control: true, severity: 'success', message: 'Logged In Successfully'};
+            setStatus({...newStatus});
+            let json = await response.json();
+            localStorage.setItem('token', json.token)
+            // console.log(json, "JSON RESP")
+            setTimeout(()=>{
+                history.push('/app');
+            },1000)   
+        }else{
+            let newStatus;
+            if(response.status == 500){
+                newStatus = {control: true, severity: 'error', message: 'Server Error'};
+            }else if(response.status == 401){
+                newStatus = {control: true, severity: 'error', message: 'Invalid Login Credentials'};
             }
-        })
+            setStatus({...newStatus});
+        }
+        // fetch('http://localhost:5000/user/authenticate', requestOptions).then(response => {
+        //     if(response.status == 200){
+        //         let newStatus = {control: true, severity: 'success', message: 'Logged In Successfully'};
+        //         setStatus({...newStatus});
+        //         console.log(response, "JSON RESP")
+        //         setTimeout(()=>{
+        //             history.push('/app');
+        //         },1000)
+        //     }else{
+        //         let newStatus;
+        //         if(response.status == 500){
+        //             newStatus = {control: true, severity: 'error', message: 'Server Error'};
+        //         }else if(response.status == 401){
+        //             newStatus = {control: true, severity: 'error', message: 'Invalid Login Credentials'};
+        //         }
+        //         setStatus({...newStatus});
+        //         // console.log(status);
+        //     }
+
+        // })
         // const json = await response;
 
     }
